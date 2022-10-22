@@ -16,12 +16,11 @@ public:
     int end;
     int value;
 
-    bool isOverlap( const cRequest& other) const;
+    bool isOverlap(const cRequest &other) const;
 
     void display()
     {
-        std::cout << id << "\t" << start <<"\t"<<
-            end <<"\t"<< value << "\n";
+        std::cout << id << "\t" << start << "\t" << end << "\t" << value << "\n";
     }
 };
 
@@ -36,25 +35,23 @@ public:
     void displayRequests();
     void displaySolution();
     void solve();
-
 };
 
-bool cRequest::isOverlap( const cRequest& other) const
+bool cRequest::isOverlap(const cRequest &other) const
 {
     // allow coming and going on same day
     // bool ret = ( start < other.start && end > other.start ||
     //     start > other.start && start < other.end );
 
     // disallow coming and going on same day
-    bool ret = ( start <= other.start && end >= other.start ||
-         start >= other.start && start <= other.end );
+    bool ret = (start <= other.start && end >= other.start ||
+                start >= other.start && start <= other.end);
 
-    std::cout << start << " "<< end <<" "<<other.start<<" "<< other.end <<" "<< ret << "\n";
+    std::cout << start << " " << end << " " << other.start << " " << other.end << " " << ret << "\n";
     return ret;
 }
 
-void
-cSolution::readfile(const std::string &fname)
+void cSolution::readfile(const std::string &fname)
 {
     std::ifstream ifs(fname);
     if (!ifs.is_open())
@@ -71,7 +68,7 @@ void cSolution::sort()
 {
     std::sort(
         myRequest.begin(), myRequest.end(),
-        []( const cRequest& a, const cRequest& b )
+        [](const cRequest &a, const cRequest &b)
         {
             return a.start < b.start;
         });
@@ -83,27 +80,36 @@ void cSolution::displayRequests()
 }
 void cSolution::displaySolution()
 {
-     for (auto &R : myAccepted)
-        R.display();   
+    int V = 0;
+    for (auto &R : myAccepted) {
+        R.display();
+        V += R.value;
+    }
+    std::cout << "Total Value " << V << "\n";
 }
 void cSolution::solve()
 {
     sort();
-    for( auto& R : myRequest)
+    cRequest Rbest;
+    int booked = 0;
+    for (auto &R : myRequest)
     {
-        bool anyOverlap = false;
-        for( auto& R2 : myRequest )
+        if( R.start <= booked )
+        continue;
+
+        Rbest = R;
+        for (auto &R2 : myRequest)
         {
-            if( R.id == R2.id )
+            if (R.id == R2.id)
                 continue;
-            if( R.isOverlap( R2 )) {
-                anyOverlap = true;
-                break;
+            if (R.isOverlap(R2))
+            {
+                if( R2.value > Rbest.value )
+                    Rbest = R2;
             }
         }
-        if( ! anyOverlap ) {
-            myAccepted.push_back( R );
-        }
+        myAccepted.push_back(Rbest);
+        booked = Rbest.end;
     }
 }
 class cGUI : public cStarterGUI
@@ -128,7 +134,7 @@ private:
 
 main()
 {
-    //cGUI theGUI;
+    // cGUI theGUI;
 
     cSolution S;
     S.readfile("rent.txt");
